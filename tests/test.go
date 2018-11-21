@@ -16,15 +16,15 @@ import (
 )
 
 const (
-	TOPIC_ORDER = "order_stresstest"
-	TOPIC_ORDERBOOK = "orderbook_stresstest"
+	TOPIC_ORDER = "order"
+	TOPIC_ORDERBOOK = "orderbook"
 )
 
 
 var ai = 0
 var mutex sync.Mutex
 
-func randomOrder(marketId int, side string, price float64, size float64) *orderbook.Order {
+func randomOrder(symbol string, side string, price float64, size float64) *orderbook.Order {
 	mutex.Lock()
 	p := price
 	s := size
@@ -56,7 +56,8 @@ func randomOrder(marketId int, side string, price float64, size float64) *orderb
 		Price: p,
 		Size: s,
 		Side: sd,
-		MarketID: marketId,
+		Symbol: symbol,
+		Type: "limit",
 	}
 }
 
@@ -71,9 +72,9 @@ func main() {
 	orderbookTopic := ps.GetOrCreateTopic(TOPIC_ORDERBOOK)
 
 	var orderbookSubscribe *pubsub.Subscription
-	changeSubscribeName := "order_stresstest"
+	changeSubscribeName := "order"
 
-	symbols := []int{0,1,2,3,4}
+	symbols := []string{"BTCUSD", "ETHUSD", "BONDUSD"}
 
 	if orderbookTopic != nil {
 		orderbookSubscribe = ps.GetOrCreateSubscription(changeSubscribeName, orderbookTopic)
