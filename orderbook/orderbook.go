@@ -240,7 +240,7 @@ func (ob *OrderBook) OrderBook() map[string]interface{} {
 
 	sellIt := ob.sell.Iterator()
 	for sellIt.Next() {
-		buy[fmt.Sprintf("%g", sellIt.Key().(float64))] = sellIt.Value()
+		sell[fmt.Sprintf("%g", sellIt.Key().(float64))] = sellIt.Value()
 	}
 
 	return map[string]interface{}{
