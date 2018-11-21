@@ -3,7 +3,6 @@ package orderbook
 import (
 	"fmt"
 	"github.com/emirpasic/gods/trees/redblacktree"
-	"github.com/gin-gonic/gin/json"
 	"sync"
 )
 
@@ -236,26 +235,13 @@ func (ob *OrderBook) OrderBook() map[string]interface{} {
 
 	buyIt := ob.buy.Iterator()
 	for buyIt.Next() {
-		fmt.Println("buyIt next")
 		buy[fmt.Sprintf("%g", buyIt.Key().(float64))] = buyIt.Value()
 	}
 
 	sellIt := ob.sell.Iterator()
 	for sellIt.Next() {
-		fmt.Println("sellIt next")
 		buy[fmt.Sprintf("%g", sellIt.Key().(float64))] = sellIt.Value()
 	}
-
-	b, err := json.Marshal(map[string]interface{}{
-		"buy": buy,
-		"sell": sell,
-	})
-
-	if err != nil {
-		fmt.Println("Marshal err", err.Error())
-	}
-
-	fmt.Println("abc", string(b))
 
 	return map[string]interface{}{
 		"buy": buy,
