@@ -22,11 +22,6 @@ type OrderBook struct{
 	onAfterRemoveOrder func(ob *OrderBook, o *Order)
 }
 
-type OrderBookLv2 struct{
-	price string
-	orders []*Order
-}
-
 
 func NewOrderbook() *OrderBook{
 	ob := &OrderBook{
@@ -235,19 +230,17 @@ func (ob *OrderBook) OrderBook() map[string]interface{} {
 	ob.mutex.Lock()
 	defer ob.mutex.Unlock()
 
-	buy := make([]*OrderBookLv2, 0)
-	sell := make([]*OrderBookLv2, 0)
+	buy := make([]interface{}, 0)
+	sell := make([]interface{}, 0)
 
 	buyIt := ob.buy.Iterator()
 	for buyIt.Next() {
-		ob2 := &OrderBookLv2{fmt.Sprintf("%g", buyIt.Key().(float64)), buyIt.Value().([]*Order)}
-		buy = append(buy, ob2)
+		buy = append(buy, []interface{}{ fmt.Sprintf("%g", buyIt.Key().(float64)), buyIt.Value() })
 	}
 
 	sellIt := ob.sell.Iterator()
 	for sellIt.Next() {
-		ob2 := &OrderBookLv2{fmt.Sprintf("%g", sellIt.Key().(float64)), sellIt.Value().([]*Order)}
-		sell = append(sell, ob2)
+		sell = append(sell, []interface{}{ fmt.Sprintf("%g", sellIt.Key().(float64)), sellIt.Value() })
 	}
 
 	return map[string]interface{}{
