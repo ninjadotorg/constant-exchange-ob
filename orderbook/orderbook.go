@@ -3,6 +3,7 @@ package orderbook
 import (
 	"fmt"
 	"github.com/emirpasic/gods/trees/redblacktree"
+	"sync"
 )
 
 const SIDE_BUY = "buy"
@@ -11,6 +12,7 @@ const SIDE_SELL = "sell"
 type OrderBook struct{
 	buy *redblacktree.Tree
 	sell *redblacktree.Tree
+	mutex sync.Mutex
 	orders map[int]*Order
 	onBeforeAddOrder func(ob *OrderBook, o *Order)
 	onBeforeUpdateOrder func(ob *OrderBook, o *Order)
@@ -124,6 +126,8 @@ func (ob *OrderBook) updateOrder(tree *redblacktree.Tree, order *Order) bool {
 
 
 func (ob *OrderBook) AddOrder(o *Order) (bool, *Order) {
+	ob.mutex.Lock()
+	defer ob.mutex.Unlock()
 	if ob.onBeforeAddOrder != nil {
 		ob.onBeforeAddOrder(ob, o)
 	}
@@ -163,6 +167,8 @@ func (ob *OrderBook) AddOrder(o *Order) (bool, *Order) {
 }
 
 func (ob *OrderBook) UpdateOrder(o *Order) bool {
+	ob.mutex.Lock()
+	defer ob.mutex.Unlock()
 	var status bool = false
 
 	if ob.onBeforeUpdateOrder != nil {
@@ -179,6 +185,8 @@ func (ob *OrderBook) UpdateOrder(o *Order) bool {
 }
 
 func (ob *OrderBook) RemoveOrder(o *Order) bool {
+	ob.mutex.Lock()
+	defer ob.mutex.Unlock()
 	var status bool = false
 
 	if ob.onBeforeRemoveOrder != nil {
@@ -195,6 +203,9 @@ func (ob *OrderBook) RemoveOrder(o *Order) bool {
 }
 
 func (ob *OrderBook) TotalBuyOrders() int {
+	ob.mutex.Lock()
+	defer ob.mutex.Unlock()
+
 	size := 0
 	values := ob.buy.Values()
 	for _, value := range values {
@@ -204,6 +215,9 @@ func (ob *OrderBook) TotalBuyOrders() int {
 }
 
 func (ob *OrderBook) TotalSellOrders() int {
+	ob.mutex.Lock()
+	defer ob.mutex.Unlock()
+
 	size := 0
 	values := ob.sell.Values()
 	for _, value := range values {
@@ -213,6 +227,9 @@ func (ob *OrderBook) TotalSellOrders() int {
 }
 
 func (ob *OrderBook) OrderBook() map[string]interface{} {
+	ob.mutex.Lock()
+	defer ob.mutex.Unlock()
+
 	return map[string]interface{}{
 		"buy": ob.buy.Values(),
 		"sell": ob.sell.Values(),

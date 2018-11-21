@@ -16,8 +16,8 @@ import (
 )
 
 const (
-	TOPIC_ORDER = "order"
-	TOPIC_ORDERBOOK = "orderbook"
+	TOPIC_ORDER = "order_stresstest"
+	TOPIC_ORDERBOOK = "orderbook_stresstest"
 )
 
 
@@ -71,7 +71,7 @@ func main() {
 	orderbookTopic := ps.GetOrCreateTopic(TOPIC_ORDERBOOK)
 
 	var orderbookSubscribe *pubsub.Subscription
-	changeSubscribeName := "order"
+	changeSubscribeName := "order_stresstest"
 
 	symbols := []int{0,1,2,3,4}
 
@@ -92,7 +92,7 @@ func main() {
 	}
 
 	for _, symbol := range symbols {
-		totalOrder := utils.RandomInt(1000, 5000)
+		totalOrder := utils.RandomInt(10000, 50000)
 		for i := 0; i < totalOrder; i++ {
 			o := randomOrder(symbol, "", 0, 0)
 			msg := map[string]interface{}{
@@ -107,7 +107,7 @@ func main() {
 				fmt.Println("Add order", string(msgJson), uuid)
 			}
 
-			time.Sleep(10 * time.Millisecond)
+			//time.Sleep(10 * time.Millisecond)
 		}
 	}
 

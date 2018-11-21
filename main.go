@@ -11,23 +11,22 @@ import (
 	"github.com/ninjadotorg/constant-exchange-ob/orderbook"
 	"github.com/ninjadotorg/constant-exchange-ob/services"
 	"os"
-	"strconv"
 )
 
 var conf *config.Config
-var orderbooks = map[int]*orderbook.OrderBook{}
+var orderbooks = map[string]*orderbook.OrderBook{}
 
 const (
-	TOPIC_ORDER = "order"
-	TOPIC_ORDERBOOK = "orderbook"
+	TOPIC_ORDER = "order_stresstest"
+	TOPIC_ORDERBOOK = "orderbook_stresstest"
 )
 
-func getOrderBook(marketId int) *orderbook.OrderBook{
-	if ob, ok := orderbooks[marketId]; ok {
+func getOrderBook(symbol string) *orderbook.OrderBook{
+	if ob, ok := orderbooks[symbol]; ok {
 		return ob
 	}
 	ob := orderbook.NewOrderbook()
-	orderbooks[marketId] = ob
+	orderbooks[symbol] = ob
 	return ob
 }
 
@@ -38,9 +37,15 @@ func main() {
 
 	r := gin.Default()
 	r.GET("/orderbook", func(c *gin.Context) {
-		marketId, _ := strconv.Atoi(c.DefaultQuery("market_id", "0"))
+		symbol := c.DefaultQuery("symbol", "none")
 
-		ob := getOrderBook(marketId)
+		if symbol == "none" {
+			c.JSON(200, gin.H{
+				"data": nil,
+			})
+		}
+
+		ob := getOrderBook(symbol)
 
 		c.JSON(200, gin.H{
 			"data": ob.OrderBook(),
@@ -69,7 +74,7 @@ func main() {
 				}
 			}
 
-			orderSubscribe := ps.GetOrCreateSubscription("orderbook", orderTopic)
+			orderSubscribe := ps.GetOrCreateSubscription("orderbook_stresstest", orderTopic)
 			fmt.Println("Start receive..")
 			err := orderSubscribe.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
 				msg.Ack()
@@ -80,7 +85,7 @@ func main() {
 					return
 				}
 
-				ob := getOrderBook(orderMessage.Order.MarketID)
+				ob := getOrderBook(orderMessage.Order.Symbol)
 
 				switch orderMessage.Type {
 				case "add":
@@ -110,7 +115,7 @@ func main() {
 					}
 				case "update":
 					{
-						ob := getOrderBook(orderMessage.Order.MarketID)
+						ob := getOrderBook(orderMessage.Order.Symbol)
 
 						if result := ob.UpdateOrder(&orderMessage.Order); !result {
 							// publish ob change
@@ -119,7 +124,7 @@ func main() {
 					}
 				case "remove":
 					{
-						ob := getOrderBook(orderMessage.Order.MarketID)
+						ob := getOrderBook(orderMessage.Order.Symbol)
 
 						if result := ob.RemoveOrder(&orderMessage.Order); !result {
 							// publish ob change
