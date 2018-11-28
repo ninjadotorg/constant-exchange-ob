@@ -3,6 +3,7 @@ package orderbook
 import (
 	"fmt"
 	"github.com/emirpasic/gods/trees/redblacktree"
+	"sort"
 	"sync"
 )
 
@@ -50,6 +51,10 @@ func (ob *OrderBook) getTrees(side string) (*redblacktree.Tree, *redblacktree.Tr
 func (ob *OrderBook) findMatching(tree *redblacktree.Tree, price float64, size float64) *Order {
 	if value, ok := tree.Get(price); ok {
 		orders := value.([]*Order)
+		sort.Slice(orders[:], func(i, j int) bool {
+			return orders[i].Time < orders[j].Time
+		})
+
 		var isMatching = false
 		var matchOrder *Order
 		// find matching order
@@ -235,16 +240,38 @@ func (ob *OrderBook) OrderBook() map[string]interface{} {
 
 	buyIt := ob.buy.Iterator()
 	for buyIt.Next() {
-		buy = append(buy, []interface{}{ fmt.Sprintf("%g", buyIt.Key().(float64)), buyIt.Value() })
+		orders := buyIt.Value().([]*Order)
+		sum := float64(0)
+		for _, o := range orders {
+			sum += o.Size
+		}
+		buy = append(buy, []interface{}{ fmt.Sprintf("%g", buyIt.Key().(float64)), fmt.Sprintf("%g", sum), buyIt.Value() })
 	}
 
 	sellIt := ob.sell.Iterator()
 	for sellIt.Next() {
-		sell = append(sell, []interface{}{ fmt.Sprintf("%g", sellIt.Key().(float64)), sellIt.Value() })
+		orders := sellIt.Value().([]*Order)
+		sum := float64(0)
+		for _, o := range orders {
+			sum += o.Size
+		}
+		sell = append(sell, []interface{}{ fmt.Sprintf("%g", sellIt.Key().(float64)), fmt.Sprintf("%g", sum), sellIt.Value() })
 	}
 
 	return map[string]interface{}{
 		"buy": buy,
 		"sell": sell,
 	}
+}
+
+func (ob *OrderBook) GetOrder(id int) *Order {
+	ob.mutex.Lock()
+	defer ob.mutex.Unlock()
+
+	order, ok := ob.orders[id]
+	if ok {
+		return order
+	}
+
+	return nil
 }

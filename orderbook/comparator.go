@@ -1,6 +1,5 @@
 package orderbook
 
-
 func Float64ComparatorAsc(a, b interface{}) int {
 	aAsserted := a.(float64)
 	bAsserted := b.(float64)

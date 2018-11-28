@@ -6,6 +6,7 @@ import (
 	"github.com/ninjadotorg/constant-exchange-ob/utils"
 	"sync"
 	"testing"
+	"time"
 )
 
 var ai = 0
@@ -42,6 +43,8 @@ func randomOrder(side string, price float64, size float64) *Order {
 		Price: p,
 		Size: s,
 		Side: sd,
+		Type: "limit",
+		Time: time.Now().Unix(),
 	}
 }
 

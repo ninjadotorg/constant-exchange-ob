@@ -11,14 +11,15 @@ import (
 	"github.com/ninjadotorg/constant-exchange-ob/orderbook"
 	"github.com/ninjadotorg/constant-exchange-ob/services"
 	"os"
+	"strconv"
 )
 
 var conf *config.Config
 var orderbooks = map[string]*orderbook.OrderBook{}
 
 const (
-	TOPIC_ORDER = "order"
-	TOPIC_ORDERBOOK = "orderbook"
+	TOPIC_ORDER = "order_stresstest"
+	TOPIC_ORDERBOOK = "orderbook_stresstest"
 )
 
 func getOrderBook(symbol string) *orderbook.OrderBook{
@@ -51,6 +52,35 @@ func main() {
 			"data": ob.OrderBook(),
 		})
 	})
+	r.GET("/order", func(c *gin.Context) {
+		id := c.DefaultQuery("id", "none")
+
+		if id == "none" {
+			c.JSON(200, gin.H{
+				"data": nil,
+			})
+		}
+		iId, err := strconv.Atoi(id)
+		if err != nil {
+			c.JSON(200, gin.H{
+				"data": nil,
+			})
+		}
+
+		for _, ob := range orderbooks {
+			order := ob.GetOrder(iId)
+			if order != nil {
+				c.JSON(200, gin.H{
+					"data": ob.OrderBook(),
+				})
+			}
+		}
+
+
+		c.JSON(200, gin.H{
+			"data": nil,
+		})
+	})
 	go r.Run()
 
 	ps := services.InitPubSub(conf.GCProjectID)
@@ -74,7 +104,7 @@ func main() {
 				}
 			}
 
-			orderSubscribe := ps.GetOrCreateSubscription("orderbook", orderTopic)
+			orderSubscribe := ps.GetOrCreateSubscription("orderbook_stresstest", orderTopic)
 			fmt.Println("Start receive..")
 			err := orderSubscribe.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
 				msg.Ack()

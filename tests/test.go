@@ -4,6 +4,7 @@ import (
 	"cloud.google.com/go/pubsub"
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/ninjadotorg/constant-exchange-ob/config"
 	"github.com/ninjadotorg/constant-exchange-ob/messages"
 	"github.com/ninjadotorg/constant-exchange-ob/orderbook"
@@ -12,14 +13,12 @@ import (
 	"os"
 	"sync"
 	"time"
-	"fmt"
 )
 
 const (
-	TOPIC_ORDER = "order"
-	TOPIC_ORDERBOOK = "orderbook"
+	TOPIC_ORDER     = "order_stresstest"
+	TOPIC_ORDERBOOK = "orderbook_stresstest"
 )
-
 
 var ai = 0
 var mutex sync.Mutex
@@ -31,7 +30,7 @@ func randomOrder(symbol string, side string, price float64, size float64) *order
 	sd := side
 
 	if p == 0 {
-		p = utils.RandomFloat64(1,5)
+		p = utils.RandomFloat64(1, 5)
 	}
 
 	if s == 0 {
@@ -39,7 +38,7 @@ func randomOrder(symbol string, side string, price float64, size float64) *order
 	}
 
 	if sd == "" {
-		randomSide := utils.RandomInt(0,2)
+		randomSide := utils.RandomInt(0, 2)
 		fmt.Println("randomSide", randomSide)
 		if randomSide == 1 {
 			sd = "sell"
@@ -52,12 +51,13 @@ func randomOrder(symbol string, side string, price float64, size float64) *order
 	mutex.Unlock()
 
 	return &orderbook.Order{
-		ID: ai,
-		Price: p,
-		Size: s,
-		Side: sd,
+		ID:     ai,
+		Price:  p,
+		Size:   s,
+		Side:   sd,
 		Symbol: symbol,
-		Type: "limit",
+		Type:   "limit",
+		Time:   time.Now().Unix(),
 	}
 }
 
@@ -72,7 +72,7 @@ func main() {
 	orderbookTopic := ps.GetOrCreateTopic(TOPIC_ORDERBOOK)
 
 	var orderbookSubscribe *pubsub.Subscription
-	changeSubscribeName := "order"
+	changeSubscribeName := "order_stresstest"
 
 	symbols := []string{"BTCUSD", "ETHUSD", "BONDUSD"}
 
@@ -93,11 +93,11 @@ func main() {
 	}
 
 	for _, symbol := range symbols {
-		totalOrder := utils.RandomInt(10000, 50000)
+		totalOrder := utils.RandomInt(1000, 5000)
 		for i := 0; i < totalOrder; i++ {
 			o := randomOrder(symbol, "", 0, 0)
 			msg := map[string]interface{}{
-				"type":"add",
+				"type":  "add",
 				"order": o,
 			}
 			msgJson, _ := json.Marshal(msg)
