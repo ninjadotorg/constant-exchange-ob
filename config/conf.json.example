@@ -1,4 +1,4 @@
 {
-  "env": "",
+  "env": "localhost",
   "gc_project_id": "",
 }

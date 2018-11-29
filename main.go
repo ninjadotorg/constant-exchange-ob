@@ -18,8 +18,8 @@ var conf *config.Config
 var orderbooks = map[string]*orderbook.OrderBook{}
 
 const (
-	TOPIC_ORDER = "order_stresstest"
-	TOPIC_ORDERBOOK = "orderbook_stresstest"
+	TOPIC_ORDER = "order"
+	TOPIC_ORDERBOOK = "orderbook"
 )
 
 func getOrderBook(symbol string) *orderbook.OrderBook{
@@ -104,7 +104,7 @@ func main() {
 				}
 			}
 
-			orderSubscribe := ps.GetOrCreateSubscription("orderbook_stresstest", orderTopic)
+			orderSubscribe := ps.GetOrCreateSubscription("orderbook", orderTopic)
 			fmt.Println("Start receive..")
 			err := orderSubscribe.Receive(ctx, func(ctx context.Context, msg *pubsub.Message) {
 				msg.Ack()

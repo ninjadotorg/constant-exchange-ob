@@ -1,4 +1,4 @@
 {
-  "env": "localhost",
+  "env": "stresstest2",
   "gc_project_id": "cash-prototype"
 }

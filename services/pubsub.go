@@ -44,6 +44,7 @@ func (ps *PubSub) GetOrCreateTopic(topicName string) *pubsub.Topic {
 		return topic
 	}
 
+	fmt.Println("Creating topic", prefixTopicName)
 	// create topic
 	topic, err = ps.client.CreateTopic(context.Background(), prefixTopicName)
 	if err != nil {
@@ -71,6 +72,7 @@ func (ps *PubSub) GetOrCreateSubscription(subscriptionName string, topic *pubsub
 		return subscription
 	}
 
+	fmt.Println("Creating subscription", prefixSubscriptionName)
 	// create topic
 	subscription, err = ps.client.CreateSubscription(ctx, prefixSubscriptionName, pubsub.SubscriptionConfig{Topic: topic})
 	if err != nil {

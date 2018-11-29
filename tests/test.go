@@ -16,8 +16,8 @@ import (
 )
 
 const (
-	TOPIC_ORDER     = "order_stresstest"
-	TOPIC_ORDERBOOK = "orderbook_stresstest"
+	TOPIC_ORDER     = "order"
+	TOPIC_ORDERBOOK = "orderbook"
 )
 
 var ai = 0
@@ -65,13 +65,13 @@ func main() {
 
 	ctx := context.Background()
 
-	ps := services.InitPubSub(conf.GCProjectID)
+	ps := services.InitPubSub(conf.GCProjectID, conf.ENV)
 
 	orderTopic := ps.GetOrCreateTopic(TOPIC_ORDER)
 	orderbookTopic := ps.GetOrCreateTopic(TOPIC_ORDERBOOK)
 
 	var orderbookSubscribe *pubsub.Subscription
-	changeSubscribeName := "order_stresstest"
+	changeSubscribeName := "order"
 
 	symbols := []string{"BTCUSD", "ETHUSD", "BONDUSD"}
 
