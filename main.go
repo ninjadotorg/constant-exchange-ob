@@ -81,7 +81,7 @@ func main() {
 			"data": nil,
 		})
 	})
-	go r.Run()
+	go r.Run(fmt.Sprintf(":%s", conf.Port))
 
 	ps := services.InitPubSub(conf.GCProjectID, conf.ENV)
 	if ps != nil {
