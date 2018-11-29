@@ -28,7 +28,11 @@ func InitPubSub(projectId string, prefix string) *PubSub {
 }
 
 func (ps *PubSub) GetOrCreateTopic(topicName string) *pubsub.Topic {
-	prefixTopicName := fmt.Sprintf("%s_%s", ps.prefix, topicName)
+	prefixTopicName := topicName
+	if ps.prefix != "" {
+		prefixTopicName = fmt.Sprintf("%s_%s", ps.prefix, topicName)
+	}
+
 	ctx := context.Background()
 	var topic *pubsub.Topic
 	var err error
@@ -56,7 +60,11 @@ func (ps *PubSub) GetOrCreateTopic(topicName string) *pubsub.Topic {
 }
 
 func (ps *PubSub) GetOrCreateSubscription(subscriptionName string, topic *pubsub.Topic) *pubsub.Subscription {
-	prefixSubscriptionName := fmt.Sprintf("%s_%s", ps.prefix, subscriptionName)
+	prefixSubscriptionName := subscriptionName
+	if ps.prefix != "" {
+		prefixSubscriptionName = fmt.Sprintf("%s_%s", ps.prefix, subscriptionName)
+	}
+
 	ctx := context.Background()
 	var subscription *pubsub.Subscription
 	var err error
