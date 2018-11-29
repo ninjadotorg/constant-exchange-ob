@@ -1,3 +1,4 @@
 {
+  "env": "localhost",
   "gc_project_id": "cash-prototype"
 }

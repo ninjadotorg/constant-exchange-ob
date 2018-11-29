@@ -3,6 +3,7 @@ package orderbook
 import (
 	"fmt"
 	"github.com/emirpasic/gods/trees/redblacktree"
+	"github.com/shopspring/decimal"
 	"sort"
 	"sync"
 )
@@ -241,21 +242,21 @@ func (ob *OrderBook) OrderBook() map[string]interface{} {
 	buyIt := ob.buy.Iterator()
 	for buyIt.Next() {
 		orders := buyIt.Value().([]*Order)
-		sum := float64(0)
+		sum := decimal.NewFromFloat(0)
 		for _, o := range orders {
-			sum += o.Size
+			sum = sum.Add(decimal.NewFromFloat(o.Size))
 		}
-		buy = append(buy, []interface{}{ fmt.Sprintf("%g", buyIt.Key().(float64)), fmt.Sprintf("%g", sum), buyIt.Value() })
+		buy = append(buy, []interface{}{ fmt.Sprintf("%g", buyIt.Key().(float64)), sum.String(), buyIt.Value() })
 	}
 
 	sellIt := ob.sell.Iterator()
 	for sellIt.Next() {
 		orders := sellIt.Value().([]*Order)
-		sum := float64(0)
+		sum := decimal.NewFromFloat(0)
 		for _, o := range orders {
-			sum += o.Size
+			sum = sum.Add(decimal.NewFromFloat(o.Size))
 		}
-		sell = append(sell, []interface{}{ fmt.Sprintf("%g", sellIt.Key().(float64)), fmt.Sprintf("%g", sum), sellIt.Value() })
+		sell = append(sell, []interface{}{ fmt.Sprintf("%g", sellIt.Key().(float64)), sum.String(), sellIt.Value() })
 	}
 
 	return map[string]interface{}{

@@ -39,7 +39,6 @@ func randomOrder(symbol string, side string, price float64, size float64) *order
 
 	if sd == "" {
 		randomSide := utils.RandomInt(0, 2)
-		fmt.Println("randomSide", randomSide)
 		if randomSide == 1 {
 			sd = "sell"
 		} else {
@@ -86,9 +85,10 @@ func main() {
 				fmt.Printf("could not decode message data: %#v", msg)
 				return
 			}
-			if orderbookMessage.Type == "match" {
-				fmt.Println("ob match", string(msg.Data))
-			}
+			//if orderbookMessage.Type == "match" {
+			//	fmt.Println("ob match", string(msg.Data))
+			//}
+			fmt.Println("ob", string(msg.Data))
 		})
 	}
 

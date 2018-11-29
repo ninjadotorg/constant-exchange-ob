@@ -8,9 +8,10 @@ import (
 
 type PubSub struct{
 	client *pubsub.Client
+	prefix string
 }
 
-func InitPubSub(projectId string) *PubSub {
+func InitPubSub(projectId string, prefix string) *PubSub {
 	ctx := context.Background()
 	pubsubClient, err := pubsub.NewClient(ctx, projectId)
 	if err != nil {
@@ -20,16 +21,18 @@ func InitPubSub(projectId string) *PubSub {
 
 	pubsub := &PubSub{
 		client: pubsubClient,
+		prefix: prefix,
 	}
 
 	return pubsub
 }
 
 func (ps *PubSub) GetOrCreateTopic(topicName string) *pubsub.Topic {
+	prefixTopicName := fmt.Sprintf("%s_%s", ps.prefix, topicName)
 	ctx := context.Background()
 	var topic *pubsub.Topic
 	var err error
-	topic = ps.client.Topic(topicName)
+	topic = ps.client.Topic(prefixTopicName)
 	ok, err := topic.Exists(ctx)
 
 	if err != nil {
@@ -42,7 +45,7 @@ func (ps *PubSub) GetOrCreateTopic(topicName string) *pubsub.Topic {
 	}
 
 	// create topic
-	topic, err = ps.client.CreateTopic(context.Background(), topicName)
+	topic, err = ps.client.CreateTopic(context.Background(), prefixTopicName)
 	if err != nil {
 		fmt.Println("pubsub GetOrCreateTopic err", err.Error())
 		return nil
@@ -52,10 +55,11 @@ func (ps *PubSub) GetOrCreateTopic(topicName string) *pubsub.Topic {
 }
 
 func (ps *PubSub) GetOrCreateSubscription(subscriptionName string, topic *pubsub.Topic) *pubsub.Subscription {
+	prefixSubscriptionName := fmt.Sprintf("%s_%s", ps.prefix, subscriptionName)
 	ctx := context.Background()
 	var subscription *pubsub.Subscription
 	var err error
-	subscription = ps.client.Subscription(subscriptionName)
+	subscription = ps.client.Subscription(prefixSubscriptionName)
 
 	ok, err := subscription.Exists(ctx)
 	if err != nil {
@@ -68,7 +72,7 @@ func (ps *PubSub) GetOrCreateSubscription(subscriptionName string, topic *pubsub
 	}
 
 	// create topic
-	subscription, err = ps.client.CreateSubscription(ctx, subscriptionName, pubsub.SubscriptionConfig{Topic: topic})
+	subscription, err = ps.client.CreateSubscription(ctx, prefixSubscriptionName, pubsub.SubscriptionConfig{Topic: topic})
 	if err != nil {
 		fmt.Println("pubsub GetOrCreateSubscription err", err.Error())
 		return nil

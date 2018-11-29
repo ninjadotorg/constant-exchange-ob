@@ -30,4 +30,5 @@ func GetConfig() *Config {
 
 type Config struct {
 	GCProjectID			string		`json:"gc_project_id"`
+	ENV					string		`json:"env"`
 }

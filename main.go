@@ -83,7 +83,7 @@ func main() {
 	})
 	go r.Run()
 
-	ps := services.InitPubSub(conf.GCProjectID)
+	ps := services.InitPubSub(conf.GCProjectID, conf.ENV)
 	if ps != nil {
 		// todo add Logic
 		orderTopic := ps.GetOrCreateTopic(TOPIC_ORDER)
