@@ -6,7 +6,7 @@ import (
 	"fmt"
 )
 
-type PubSub struct{
+type PubSub struct {
 	client *pubsub.Client
 	prefix string
 }
@@ -36,6 +36,9 @@ func (ps *PubSub) GetOrCreateTopic(topicName string) *pubsub.Topic {
 	ctx := context.Background()
 	var topic *pubsub.Topic
 	var err error
+	fmt.Println("---------- Topic ----------")
+	fmt.Println(prefixTopicName)
+	fmt.Println("---------- Topic ----------")
 	topic = ps.client.Topic(prefixTopicName)
 	ok, err := topic.Exists(ctx)
 
